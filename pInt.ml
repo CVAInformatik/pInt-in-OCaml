@@ -127,38 +127,38 @@ let rec dropLeading0aux a =
 
 let rec dropLeading0 a = List.rev (dropLeading0aux (List.rev a))
 
-let rec normalizepIntAux2 carry sign  a modulus =
+let rec normalizepIntAux2 modulus carry sign  a  =
      match a with
      | [] -> []
-		 |  0 :: tl ->  ( 0 + carry) :: ( normalizepIntAux2 0 sign tl modulus) 
-		 | hd :: tl when  (( sign> 0 ) && ( (hd + carry) < 0 )) -> ( hd + carry + modulus) :: ( normalizepIntAux2 ~-1 sign tl modulus) 
-		 | hd :: tl when  (( sign< 0 ) && ( (hd + carry) > 0 )) -> ( hd + carry - modulus) :: ( normalizepIntAux2   1 sign tl modulus) 
-		 | hd :: tl ->  ( hd +carry) :: ( normalizepIntAux2 0 sign tl modulus) 
+		 |  0 :: tl ->  ( 0 + carry) :: ( normalizepIntAux2 modulus 0 sign tl ) 
+		 | hd :: tl when  (( sign> 0 ) && ( (hd + carry) < 0 )) -> ( hd + carry + modulus) :: ( normalizepIntAux2 modulus ~-1 sign tl ) 
+		 | hd :: tl when  (( sign< 0 ) && ( (hd + carry) > 0 )) -> ( hd + carry - modulus) :: ( normalizepIntAux2 modulus  1 sign tl ) 
+		 | hd :: tl ->  ( hd +carry) :: ( normalizepIntAux2 modulus 0 sign tl ) 
 
 (* adjust signs in so they match the sign of s *)
-let rec normalizepIntAux1 s a modulus =
+let rec normalizepIntAux1 modulus s a  =
      match a with
      | [] -> []
-		 | hd :: tl -> normalizepIntAux2 0 s a modulus
+		 | hd :: tl -> normalizepIntAux2 modulus 0 s a 
 
 (* drop MSDs, which are 0 *)
-let rec normalizepIntAux a modulus =
+let rec normalizepIntAux modulus a =
      match a with
      | [] -> []
-     | 0 :: tl  -> normalizepIntAux tl modulus
-     | hd :: tl -> normalizepIntAux1 hd (List.rev a) modulus
+     | 0 :: tl  -> normalizepIntAux modulus tl 
+     | hd :: tl -> normalizepIntAux1 modulus hd (List.rev a) 
 
 (* drop MSDs, which are 0 and adjust signs, so they are consistent *)
-let rec normalizepInt a modulus = normalizepIntAux (List.rev a) modulus 
+let rec normalizepInt modulus a  = normalizepIntAux modulus (List.rev a) 
 
-let rec carrypIntAux a carry modulus =
+let rec carrypIntAux modulus a carry =
     match a with
     | []  -> if carry <> 0  then [carry] else []
-    | hd :: tl when hd+carry >= modulus -> ( carry + hd - modulus):: (carrypIntAux tl 1 modulus)
-    | hd :: tl when hd+carry <= ~-modulus -> ( carry + hd + modulus):: ( carrypIntAux tl ~-1 modulus)
-    | hd :: tl -> ( carry + hd ):: ( carrypIntAux tl 0 modulus)
+    | hd :: tl when hd+carry >= modulus -> ( carry + hd - modulus):: (carrypIntAux modulus tl 1 )
+    | hd :: tl when hd+carry <= ~-modulus -> ( carry + hd + modulus):: ( carrypIntAux modulus tl ~-1 )
+    | hd :: tl -> ( carry + hd ):: ( carrypIntAux modulus tl 0 )
 
-let rec carrypInt a modulus  =  carrypIntAux a 0 modulus
+let rec carrypInt modulus a   =  carrypIntAux modulus  a 0 
 
 
 
@@ -168,11 +168,7 @@ let rec addpInt  a  b   =
    | _, [] -> a
    | hd :: tl, hd2 ::tl2  -> (hd + hd2) :: (addpInt tl tl2)
 
-let addPintM8 i1 i2 = dropLeading0 (normalizepInt (carrypInt (addpInt i1 i2) _MODULUS8 ) _MODULUS8)
-
-(* for use in multiplikation, abandoned for now...
-let addPintM4 i1 i2 = dropLeading0 (normalizepInt (carrypInt (addpInt i1 i2) _MODULUS4 ) _MODULUS4)
-*)
+let addPintM8 i1 i2 = dropLeading0 (normalizepInt _MODULUS8 (carrypInt  _MODULUS8 (addpInt i1 i2) ) )
 
 let rec fromInt1 x = 
 	if (x = 0 ) 
@@ -530,23 +526,14 @@ let rec millerRabin it n =
 
 
 let rec tonelliShanks4 p =
-(* )     let 
-        () = Printf.printf "ts4: p %s \n" (iToA p)
-     in
-*)     let z = rand p in 
+     let z = rand p in 
      if ( -1 = (jacobi p z))  then z else tonelliShanks4 p  
      
 let rec tonelliShanks6 p t i =
-(* )     let 
-        () = Printf.printf "ts6: p %s  t %s  i %d \n" (iToA p) (iToA t) i
-     in
-*)    if ( isEq t (fromInt 1)) then i else tonelliShanks6 p (modMul p t t)  (i+1)
+    if ( isEq t (fromInt 1)) then i else tonelliShanks6 p (modMul p t t)  (i+1)
      
 let rec tonelliShanksLoop p c t m result =
-(*     let 
-        () = Printf.printf "tsloop: p %s  c %s  t %s m %s result %s \n" (iToA p) (iToA c) (iToA t) (iToA m) (iToA result)
-     in
-*)     if( isZero t) then raise NotaSquare 
+     if( isZero t) then raise NotaSquare 
      else if (isEq t (fromInt 1)) then result
      else let  i  = tonelliShanks6 p t 0 in     
      let  temp2 = ( modPow p  (fromInt 2) (subInt (subInt m 1 ) i )) in
@@ -557,10 +544,7 @@ let rec tonelliShanksLoop p c t m result =
  
 
 let rec tonelliShanks2 p q n s = 
-(* )     let 
-        () = Printf.printf "ts2: p %s  q %s  x %s s %s \n" (iToA p) (iToA q) (iToA n) (iToA s)
-        in
-*)     if(isZero q ) then raise NotaSquare 
+     if(isZero q ) then raise NotaSquare 
      else if(isEven q) then tonelliShanks2 p (div2 q) n (addInt s 1)
      else tonelliShanksLoop 
              p               (* p *)     
@@ -579,6 +563,74 @@ let tonelliShanks p n =
    else if (not (millerRabin 5 p)) then raise InvalidArgument
    else if ( (jacobi p n ) != 1) then raise NotaSquare 
    else  tonelliShanks1 p n 
-   
+ 
+ 
+ (* Schoolbook Multiplication  *)
+ 
+ let _MODULUS10E9 = 1_000_000_000
+
+let rec convToRadix10E9_ a =
+      match a with 
+      | [] -> []
+      | hd::tl -> (hd mod  _MODULUS10E9) :: ( hd / _MODULUS10E9) :: (convToRadix10E9_ tl)
+
+let rec convToRadix10E9 a = dropLeading0 (convToRadix10E9_ a )
+
+let rec 
+      convFromRadix10E9 a =
+      match a with 
+      | [] -> []
+      | _  ->  convFromRadix10E9_ (List.hd a)  (List.tl a)      
+      and       
+      
+			convFromRadix10E9_  a b  =
+      match b with
+			| [] ->  [a]
+			| hd :: tl ->  (( (List.hd b) * _MODULUS10E9 ) + a ) :: ( convFromRadix10E9 (List.tl b) )
+
+(* a and b are not zero and positive *)
+ 
+let rec schoolbookMul1digitCarry a carry = 
+     match a with 
+     | [] -> if(carry > 0) then [carry] else []
+     | hda::tla  -> if( (hda + carry) >= _MODULUS10E9 )
+                    then ( ( hda + carry) mod _MODULUS10E9) :: (schoolbookMul1digitCarry tla ((hda + carry) / _MODULUS10E9) )
+                    else ( hda + carry ) :: (schoolbookMul1digitCarry tla  0)
+             
+let rec schoolbookMul1digit a b = 
+		let mulDigit a c = ( a * c) in 
+		let t1 = ( List.map (mulDigit a )  b) in  schoolbookMul1digitCarry t1  0  
+
+
+let rec schoolBookMulRadix10E9_ a b accu scale =  
+    match a with 
+    | [] -> accu
+	  | h :: t  ->  let p = schoolbookMul1digit h b  in
+	                    let sum1 = addpInt accu ( scale @ p ) in 
+	                    let sum  = carrypInt _MODULUS10E9 sum1  in 
+                      schoolBookMulRadix10E9_   t  b sum  ( 0 :: scale )  
+      
+let rec schoolBookMulRadix10E9 a b =  
+    match a, b with 
+    | [],[] -> []
+    | _, [] -> []
+    | [], _ -> []
+	  | _, _ ->  schoolBookMulRadix10E9_  a b [] []
+
+ 
+let rec schoolbookMul1 a b = 
+   let product = schoolBookMulRadix10E9 (convToRadix10E9 a) (convToRadix10E9 b) in
+   convFromRadix10E9  product 
+     
+let schoolbookMul a b =  
+   match a, b with
+    | [],[] -> []
+    | _, [] -> []
+    | [], _ -> []
+    | _, _  -> if ((isNegative a)=( isNegative b)) 
+              then  schoolbookMul1 (numVal a) (numVal b)
+              else  changeSign (schoolbookMul1  (numVal a) (numVal b));;
+ 
+    
 end 
 

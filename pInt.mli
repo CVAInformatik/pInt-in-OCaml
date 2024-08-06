@@ -10,8 +10,9 @@ module type PINT  =
     	val sub : pInt ->  pInt -> pInt  (* sub a b -> (a - b) *)
     	val subInt : pInt ->  int -> pInt
     	val changeSign : pInt ->  pInt 
-    	val numVal : pInt -> pInt
+    	val numVal : pInt -> pInt        (* absolute/numerical value of a *)
     	val mul : pInt ->  pInt -> pInt
+    	val schoolbookMul : pInt ->  pInt -> pInt  
     	val div2 : pInt -> pInt 
     	val isEq : pInt -> pInt -> bool
     	val isLt : pInt -> pInt -> bool  (*  isLt a b  ->  a > b *)
