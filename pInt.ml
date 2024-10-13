@@ -1,4 +1,3 @@
-
  module Pint : PINT = struct 
 
 type pInt = int list
@@ -25,7 +24,7 @@ exception InvalidArgument
 
 let rec isEq l1 l2 =
        match l1,l2 with
-       |  [], [] -> true;
+          [], [] -> true;
        |  [], _  -> false
        |  _ , [] -> false
 			 |  hd1::tl1, hd2::tl2 -> if( hd1 = hd2) 
@@ -34,12 +33,12 @@ let rec isEq l1 l2 =
 
 let isZero l1 =
        match l1 with
-       |  []  -> true;
+          []  -> true;
        |  _::_ -> false
 
 let rec isNegative l1 =
        match l1 with
-       |  []  -> false;
+          []  -> false;
        |  hd::tl -> if (hd = 0) 
        							then (isNegative tl)
        							else ( hd < 0 ) 
@@ -48,7 +47,7 @@ let rec  mkpIntInvert  a =  ~-a
 
 let rec mkpIntFromStringAux  iList acc  mul acclist modulus =
  		match iList with
- 		|  [] -> if (acc > 0 ) then acc::acclist  else acclist 
+ 		   [] -> if (acc > 0 ) then acc::acclist  else acclist 
  		|  hd :: tl ->  if( hd == -1) 
  										then  List.map mkpIntInvert (acc::acclist) 
  		         				else 
@@ -59,7 +58,7 @@ let rec mkpIntFromStringAux  iList acc  mul acclist modulus =
 
 let mapCharToInt  c =
     match c with
-    | '0' -> 0
+      '0' -> 0
     | '1' -> 1
     | '2' -> 2
     | '3' -> 3
@@ -86,14 +85,14 @@ let aToI str = mkpIntFromString str
 
 let rec getSign pInt =
      match pInt with
-     | [] -> " "
+        [] -> " "
      |  hd::tl -> if (hd < 0) then "-"
                   else if (hd > 0 ) then " "
                        else getSign tl 
 
 let rec  dropLeading0esAux s index =
 		  match s.[index] with
-			| '0' -> dropLeading0esAux s (index+1)		  
+			 '0' -> dropLeading0esAux s (index+1)		  
 			| _   -> ( String.sub s index  ((String.length s)- index))
 
 let rec dropLeading0es s = 
@@ -114,14 +113,14 @@ let rec mkStringFrompIntAux pInt = List.map intsToString (List.map  mkPintPositi
 
 let rec mkStringFrompInt pInt =
       match pInt with
-      | [] -> (Printf.sprintf "0" ) ::[]
+        [] -> (Printf.sprintf "0" ) ::[]
       | _::_ -> mkStringFrompIntAux pInt
 
 let iToA pInt = (getSign pInt) ^ (dropLeading0es (rev (mkCompleteStringFrompInt (mkStringFrompInt pInt))))
 
 let rec dropLeading0aux a = 
      match a with
-     | [] -> []
+       [] -> []
      | 0 :: tl  -> dropLeading0aux tl
      | hd :: tl  ->  hd :: tl 
 
@@ -129,7 +128,7 @@ let rec dropLeading0 a = List.rev (dropLeading0aux (List.rev a))
 
 let rec normalizepIntAux2 modulus carry sign  a  =
      match a with
-     | [] -> []
+       [] -> []
 		 |  0 :: tl ->  ( 0 + carry) :: ( normalizepIntAux2 modulus 0 sign tl ) 
 		 | hd :: tl when  (( sign> 0 ) && ( (hd + carry) < 0 )) -> ( hd + carry + modulus) :: ( normalizepIntAux2 modulus ~-1 sign tl ) 
 		 | hd :: tl when  (( sign< 0 ) && ( (hd + carry) > 0 )) -> ( hd + carry - modulus) :: ( normalizepIntAux2 modulus  1 sign tl ) 
@@ -138,13 +137,13 @@ let rec normalizepIntAux2 modulus carry sign  a  =
 (* adjust signs in so they match the sign of s *)
 let rec normalizepIntAux1 modulus s a  =
      match a with
-     | [] -> []
+       [] -> []
 		 | hd :: tl -> normalizepIntAux2 modulus 0 s a 
 
 (* drop MSDs, which are 0 *)
 let rec normalizepIntAux modulus a =
      match a with
-     | [] -> []
+       [] -> []
      | 0 :: tl  -> normalizepIntAux modulus tl 
      | hd :: tl -> normalizepIntAux1 modulus hd (List.rev a) 
 
@@ -153,7 +152,7 @@ let rec normalizepInt modulus a  = normalizepIntAux modulus (List.rev a)
 
 let rec carrypIntAux modulus a carry =
     match a with
-    | []  -> if carry <> 0  then [carry] else []
+      []  -> if carry <> 0  then [carry] else []
     | hd :: tl when hd+carry >= modulus -> ( carry + hd - modulus):: (carrypIntAux modulus tl 1 )
     | hd :: tl when hd+carry <= ~-modulus -> ( carry + hd + modulus):: ( carrypIntAux modulus tl ~-1 )
     | hd :: tl -> ( carry + hd ):: ( carrypIntAux modulus tl 0 )
@@ -164,7 +163,7 @@ let rec carrypInt modulus a   =  carrypIntAux modulus  a 0
 
 let rec addpInt  a  b   =
    match  a, b   with
-   | [], _ -> b
+     [], _ -> b
    | _, [] -> a
    | hd :: tl, hd2 ::tl2  -> (hd + hd2) :: (addpInt tl tl2)
 
@@ -174,7 +173,7 @@ let rec fromInt1 x =
 	if (x = 0 ) 
 	  then  []
 		else  (x mod _MODULUS8) :: fromInt1 (x / _MODULUS8)
-		
+						
 let changeSign i1 = List.map mkpIntInvert i1
 		
 let rec fromInt x =
@@ -182,6 +181,11 @@ let rec fromInt x =
 		then  changeSign (fromInt1  ~-x)
 		else  fromInt1 x
 
+let rec toInt x =
+      match x with
+        [] -> 0
+      | hd::[] -> hd 
+      | _ -> raise InvalidArgument
 
 let addInt i1 i2 = addPintM8  i1 (fromInt i2)
 
@@ -189,14 +193,14 @@ let add i1 i2 = addPintM8  i1 i2
 
 let rec double2 i1 carry =
     match i1 with 
-    | [] -> if (carry = 0) then [] else [1]
+      [] -> if (carry = 0) then [] else [1]
     | hd::tl ->  if ((hd+carry ) >= _MODULUS8) 
                  then (hd+carry - _MODULUS8 ) :: (double2 tl 1)
                  else (hd+carry ) :: (double2 tl 0)
 and    
     double1 i1 =  (*  i1 >= 0 *)
     match i1 with 
-    | [] -> []
+      [] -> []
     | _  ->     double2 ( List.map  (fun x-> x + x) i1 ) 0 
 
 let double i1 = if (isNegative i1) then changeSign (double1 (changeSign i1)) else double1 i1
@@ -211,12 +215,12 @@ let isLt i1 i2 =   (not (isNegative ( sub i1 i2 )))
 (* Russian Peasant multiplication   *)
 let  isEven l1 = 
       match l1 with 
-      | []  -> true 
+        []  -> true 
       | hd::_ -> (0 = ( hd land 1 ))
 
 let rec div2Aux2 l1 lc =
       match l1 with
-      | [] ->   []
+        [] ->   []
       | hd::tl -> ((hd + (List.hd lc))/2) ::  ( div2Aux2  (List.tl l1) (List.tl lc))
 
 let div2Aux1 l1 =  div2Aux2 l1  (0 ::(List.map (fun x -> if ( 0 = 1 land x ) then  0 else _MODULUS8 ) l1))
@@ -230,7 +234,7 @@ let div2 l1 =
       
 let rec rpMulAux i1 i2 acc = 
 			match i1 with
-			| []  -> acc
+			  []  -> acc
 			| _::_	-> if( isEven i1) 
 			           then rpMulAux (div2 i1 )  (double i2 ) acc 
 			           else rpMulAux (div2 i1 )  (double i2) (add acc  i2)
@@ -239,7 +243,7 @@ let rpMul_ i1 i2 = rpMulAux i1 i2 []
 
 let rpMul i1 i2 = 
      match i1 with 
-     |  [] -> []
+        [] -> []
      |  hd::tl -> if( isNegative i1)
      							then rpMul_ (changeSign i1) (changeSign i2) 
      							else rpMul_ i1  i2
@@ -251,14 +255,14 @@ let mul i1 i2 =  rpMul i1 i2
 
 let rec power1 i1 i2 acc =
     match i2 with
-    | [] ->  acc
+      [] ->  acc
     | _  -> if (isEven i2) 
     				then power1  (mul i1 i1) (div2 i2) acc
     				else power1  (mul i1 i1) (div2 i2) (mul i1 acc)
 
 let power i1 i2 =
     match i1, i2 with
-    | [], _ -> []
+      [], _ -> []
     | _, [] -> (fromInt 1)
     | _, _ -> power1 i1  i2 (fromInt 1)
 
@@ -266,7 +270,7 @@ let power i1 i2 =
 (* 
 let rec debugPP1 x acc =
 			match x with
-			| []  -> List.rev acc
+			  []  -> List.rev acc
 			| hd::tl	-> debugPP1 tl  ( hd::acc)
 
 let debugPP x = debugPP1  x []
@@ -276,7 +280,7 @@ let debugPP x = debugPP1  x []
 let rec 
     gCD1 x y g =
 		match(x, y) with
-		| ([],_) -> ( [],[],[])
+		  ([],_) -> ( [],[],[])
 		| (_, []) -> ( [],[],[])
 		| (_ , _ ) ->  
 		     if((isEven x) && (isEven y) )
@@ -285,7 +289,7 @@ let rec
 and					
 		gCD2 x y u v a b c d g =
     match ( u )  with
-    |  [] -> ( [],[],[])
+       [] -> ( [],[],[])
 		|  _ ->  
 		     if(isEven u) 
 			    	then
@@ -297,7 +301,7 @@ and
 and		
 		gCD3  x y u v a b c d g =
     match ( v)  with
-    | [] -> ( [],[],[])
+      [] -> ( [],[],[])
 		| _  ->  
 					if(isEven v) then
 		     			if((isEven c) && (isEven d)) 
@@ -313,14 +317,14 @@ and
 and
 		gCD5 x y u v a b c d g = 
 			match u with
-			| []  ->   (c , d, (mul g v))
+			  []  ->   (c , d, (mul g v))
 			| _   ->  gCD2 x y u v a b c d g
 		
 let gCD i1 i2 =  gCD1 i1 i2 [1]
 
 let numVal x =
 		match x with
-		| [] -> []
+		  [] -> []
 		| _ -> if (isNegative x)  then (List.map  mkPintPositive  x) else x
 	
  								
@@ -338,7 +342,7 @@ let rec quotRem2 p n =
 and 
      quotRem3 d  acc =  (* make division with _MODULUS8 by throwing LSDs away *)
      match d,acc  with
-     | _ ,[]  ->  []
+       _ ,[]  ->  []
      | [], _   -> acc
      |  _, _  ->  quotRem3  (List.tl d) (List.tl acc ) 
 and 
@@ -357,7 +361,9 @@ and
       let 
          m =  (sub  b ( mul a quotient ))
       in
-      		if (isNegative m) 
+     (*  let () = Printf.printf " qR5 m %s  \n" (iToA m)   in *)
+          if (isEq m a ) then quotRem5 a b (add quotient (fromInt 1))
+      		else  if (isNegative m) 
       		then ( (sub quotient (fromInt 1)) , (add m a) )  
       		else ( quotient, (sub b (mul a quotient)))
 and  
@@ -369,7 +375,7 @@ and
 and 
     quotRem p n =
     match p, n  with
-    | [], _ ->  raise DivisionByZero
+      [], _ ->  raise DivisionByZero
     | [x],[y] ->  ( (fromInt ( y/x))  , (fromInt ( y mod x)) )
     | _, [] ->  ( [], [])
     | _, _  ->  quotRem1 p n
@@ -382,7 +388,7 @@ let rec
 and      
       rpMulModAux m i1 i2 acc = 
 			match i1 with
-			| []  -> acc
+			  []  -> acc
 			| _::_	-> if( isEven i1) 
 			           then rpMulModAux m (div2 i1 )  (rpModSum m (double i2)) acc 
 			           else rpMulModAux m (div2 i1 )  (rpModSum m (double i2)) (rpModSum m (add acc  i2))
@@ -391,7 +397,7 @@ and
 and
      rpMulMod m  i1 i2 = 
      match i1 with 
-     |  [] -> []
+        [] -> []
      |  hd::tl -> if( isNegative i1)
      							then rpMulMod_  m (changeSign i1) (changeSign i2) 
      							else rpMulMod_  m i1  i2
@@ -403,7 +409,7 @@ let modMul m a b =
     let  (aq, ar) = quotRem m a in 
     let  (bq, br) = quotRem m b in 
     match ar, br  with
-    | [], [] -> []
+      [], [] -> []
     | _ , [] -> []
     | [], _  -> []
     | _ , _  -> rpMulMod1_  m ar br 
@@ -412,14 +418,14 @@ let modMul m a b =
 (* modPow  *)
 let rec modPow1 m  i1 i2 acc =
     match i2 with
-    | [] ->  acc
+      [] ->  acc
     | _  -> if (isEven i2) 
     				then modPow1 m (modMul m i1 i1) (div2 i2) acc
     				else modPow1 m (modMul m i1 i1) (div2 i2) (modMul m i1 acc)
 
 let modPow m i1 i2 =
     match i1, i2 with
-    | [], _ -> []
+      [], _ -> []
     | _, [] -> (fromInt 1)
     | _, _ -> if( isEq m (fromInt 1) ) then [] else  modPow1 m i1  i2 (fromInt 1)
     
@@ -428,7 +434,7 @@ let modPow m i1 i2 =
 let rec jacobi1 p n r =
 (*     let () = Printf.printf "J1 p %s  n %s r  %d \n" (iToA p)  (iToA n)  r in *)
     match n with
-    | []  ->  if (isEq  p (fromInt 1) ) then r else 0
+      []  ->  if (isEq  p (fromInt 1) ) then r else 0
     | _   -> jacobi2 p n r
 
  and 
@@ -436,7 +442,7 @@ let rec jacobi1 p n r =
     jacobi2 p n r =
 (*    let () = Printf.printf "J2 p %s  n %s r  %d \n" (iToA p)  (iToA n)  r in *)
     match n with 
-    | [] -> if (isEq  p (fromInt 1) ) then r else 0
+      [] -> if (isEq  p (fromInt 1) ) then r else 0
     | hd::tl -> if (( hd land 1) = 0 ) 
     				then 
     					let s = (List.hd p ) land 7 in  
@@ -450,7 +456,7 @@ let rec jacobi1 p n r =
    jacobi3 p n r =
 (*     let () = Printf.printf "J3 p %s  n %s n  %d \n" (iToA p)  (iToA n)  r in *)
     match p, n with 
-    | [], [] -> jacobi2 p n  r
+      [], [] -> jacobi2 p n  r
     | [], _  -> jacobi2 p n  r
     | _ , [] -> jacobi2 p n  r
     | _ , _ ->  let (q,rem) = ( quotRem p n ) in 
@@ -460,7 +466,7 @@ let rec jacobi1 p n r =
     
 let jacobi p n = 
     match p, n with 
-    | [], _ ->  1
+      [], _ ->  1
     | _, _ ->   let (q,r) = quotRem p n  in if( isZero r ) then 0 else jacobi1 p n 1
 
 (*    random numbers  *)
@@ -469,13 +475,13 @@ let randInit () = Random.self_init ()
 
 let rec rand1 a b = 
      match a, b with
-     | [], [] -> []
+       [], [] -> []
      | hda::tla, hdb::tlb  -> (dropLeading0 (List.rev ((hdb mod hda)::tlb))) 
 
 
 let rand a =
     match a with 
-    | [] -> []
+      [] -> []
     | _  -> rand1 (List.rev a ) (List.map (fun x -> ( Random.full_int  _MODULUS8) ) a)
 
 (* Miller Rabin test  *)    
@@ -571,7 +577,7 @@ let tonelliShanks p n =
 
 let rec convToRadix10E9_ a =
       match a with 
-      | [] -> []
+        [] -> []
       | hd::tl -> (hd mod  _MODULUS10E9) :: ( hd / _MODULUS10E9) :: (convToRadix10E9_ tl)
 
 let rec convToRadix10E9 a = dropLeading0 (convToRadix10E9_ a )
@@ -579,20 +585,20 @@ let rec convToRadix10E9 a = dropLeading0 (convToRadix10E9_ a )
 let rec 
       convFromRadix10E9 a =
       match a with 
-      | [] -> []
+        [] -> []
       | _  ->  convFromRadix10E9_ (List.hd a)  (List.tl a)      
       and       
       
 			convFromRadix10E9_  a b  =
       match b with
-			| [] ->  [a]
+			  [] ->  [a]
 			| hd :: tl ->  (( (List.hd b) * _MODULUS10E9 ) + a ) :: ( convFromRadix10E9 (List.tl b) )
 
 (* a and b are not zero and positive *)
  
 let rec schoolbookMul1digitCarry a carry = 
      match a with 
-     | [] -> if(carry > 0) then [carry] else []
+       [] -> if(carry > 0) then [carry] else []
      | hda::tla  -> if( (hda + carry) >= _MODULUS10E9 )
                     then ( ( hda + carry) mod _MODULUS10E9) :: (schoolbookMul1digitCarry tla ((hda + carry) / _MODULUS10E9) )
                     else ( hda + carry ) :: (schoolbookMul1digitCarry tla  0)
@@ -604,7 +610,7 @@ let rec schoolbookMul1digit a b =
 
 let rec schoolBookMulRadix10E9_ a b accu scale =  
     match a with 
-    | [] -> accu
+      [] -> accu
 	  | h :: t  ->  let p = schoolbookMul1digit h b  in
 	                    let sum1 = addpInt accu ( scale @ p ) in 
 	                    let sum  = carrypInt _MODULUS10E9 sum1  in 
@@ -612,7 +618,7 @@ let rec schoolBookMulRadix10E9_ a b accu scale =
       
 let rec schoolBookMulRadix10E9 a b =  
     match a, b with 
-    | [],[] -> []
+      [],[] -> []
     | _, [] -> []
     | [], _ -> []
 	  | _, _ ->  schoolBookMulRadix10E9_  a b [] []
@@ -624,13 +630,48 @@ let rec schoolbookMul1 a b =
      
 let schoolbookMul a b =  
    match a, b with
-    | [],[] -> []
+      [],[] -> []
     | _, [] -> []
     | [], _ -> []
     | _, _  -> if ((isNegative a)=( isNegative b)) 
               then  schoolbookMul1 (numVal a) (numVal b)
               else  changeSign (schoolbookMul1  (numVal a) (numVal b));;
  
-    
-end 
 
+let rec facultAux a acc =
+   if(isZero a) then acc else  facultAux (sub a (fromInt 1)) (schoolbookMul a acc);;
+   
+let facult a = facultAux (fromInt a ) (fromInt 1);;
+
+let rec 
+			(*   insert a at pos in l  *)
+      insertAux a pos l acc =  
+            if (pos = 0) 
+            then (( List.rev acc) @ a::l )      
+            else insertAux a (pos - 1) (List.tl l)  ((List.hd l )::acc)
+   and
+			insert a pos l =  
+					(* let () = Printf.printf "insert pos %d  length %d \n" pos  (List.length l)  in *)
+					if( pos = 0) then a::l  else insertAux a  pos  l []
+   and   
+      permuteAux   li n   acc =
+			(* let () = Printf.printf "permuteAux:0  n %s \n" (iToA n) in  *)
+      match li with 
+      |  [] -> List.rev acc
+      | hd::tl  -> if( (isZero n) )
+      then permuteAux tl ( fromInt 0 ) (insert hd  0 acc)
+      else
+      let  p = 1 + (List.length acc) 
+           in let ( n1, pos)  = quotRem ( fromInt p ) n
+        	 (* in let () = Printf.printf "permuteAux:1  p %d  n1 %s pos %s \n" p (iToA n1) (iToA pos)*)
+           in permuteAux tl n1 (insert hd ( toInt pos ) acc)
+    and
+	    (*   the nth permutation of li ( 0 is the null permutation *)
+      permutation li n =
+			(* let () = Printf.printf "permutation n %s \n" (iToA n) in *)
+      match li with 
+      | []  -> []         (* empty list*)
+      | hd::[] ->  [hd]   (* one element *)
+      | hd::tl ->  permuteAux tl n [hd] (* more than one element list*)
+ 
+end 
