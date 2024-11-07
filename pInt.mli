@@ -33,6 +33,7 @@ module type PINT  =
     	val tonelliShanks : pInt -> pInt -> pInt   (* tonneliShanks m x  returns y such that x = (y*y) mod m, raises NotaSquare exception *)
     	val facult : int -> pInt 
     	val permutation : 'a list  -> pInt -> 'a list
+    	val findN : int list -> pInt 
     	exception UnexpectedChar
     	exception DivisionByZero
     	exception NotaSquare

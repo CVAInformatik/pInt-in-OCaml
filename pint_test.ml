@@ -9,13 +9,22 @@ let (a,b) = quotRem (fromInt 2) (facult 30) ;;
 iToA a ;;
 iToA b ;;
 
-let len = 150 
+let len = 50
 let p = List.init  len (fun x -> x) ;;
 let flen = facult len;;
 
 randInit () ;;
 
 let pp = permutation p (rand flen) ;;
+
+let ipp = findN pp;;
+
+iToA ipp;;
+
+pp;;
+
+permutation p ipp ;;
+
 
 
 

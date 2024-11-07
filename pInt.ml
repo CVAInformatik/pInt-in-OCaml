@@ -33,7 +33,7 @@ let rec isEq l1 l2 =
 
 let isZero l1 =
        match l1 with
-          []  -> true;
+       |   []  -> true;
        |  _::_ -> false
 
 let rec isNegative l1 =
@@ -210,7 +210,7 @@ let sub i1 i2 = add i1 (changeSign i2)
 let subInt i1 i2 = sub i1 (fromInt i2)
 
 (*  isLt a b  ->  a > b *)
-let isLt i1 i2 =   (not (isNegative ( sub i1 i2 )))
+let isLt i1 i2 =   isNegative ( sub i2 i1 )
 
 (* Russian Peasant multiplication   *)
 let  isEven l1 = 
@@ -646,32 +646,79 @@ let facult a = facultAux (fromInt a ) (fromInt 1);;
 let rec 
 			(*   insert a at pos in l  *)
       insertAux a pos l acc =  
-            if (pos = 0) 
-            then (( List.rev acc) @ a::l )      
-            else insertAux a (pos - 1) (List.tl l)  ((List.hd l )::acc)
+      match l with 
+      | [] -> if (pos = 0) 
+              then List.rev ( a::acc) 
+              else List.rev acc 
+      | hd::tl -> if (pos = 0) 
+               then insertAux a (pos - 1) l  (a::acc)
+               else insertAux a (pos - 1) tl (hd::acc)
    and
-			insert a pos l =  
-					(* let () = Printf.printf "insert pos %d  length %d \n" pos  (List.length l)  in *)
-					if( pos = 0) then a::l  else insertAux a  pos  l []
+			insert a pos l =   insertAux a  pos  l []
    and   
       permuteAux   li n   acc =
 			(* let () = Printf.printf "permuteAux:0  n %s \n" (iToA n) in  *)
       match li with 
-      |  [] -> List.rev acc
-      | hd::tl  -> if( (isZero n) )
-      then permuteAux tl ( fromInt 0 ) (insert hd  0 acc)
-      else
-      let  p = 1 + (List.length acc) 
+      |  [] -> acc
+      | hd::tl  -> 
+      let  p = 1+ (List.length acc) 
            in let ( n1, pos)  = quotRem ( fromInt p ) n
         	 (* in let () = Printf.printf "permuteAux:1  p %d  n1 %s pos %s \n" p (iToA n1) (iToA pos)*)
            in permuteAux tl n1 (insert hd ( toInt pos ) acc)
     and
 	    (*   the nth permutation of li ( 0 is the null permutation *)
-      permutation li n =
+      permutation rli n =
+      let li= List.rev rli in
 			(* let () = Printf.printf "permutation n %s \n" (iToA n) in *)
       match li with 
       | []  -> []         (* empty list*)
       | hd::[] ->  [hd]   (* one element *)
       | hd::tl ->  permuteAux tl n [hd] (* more than one element list*)
+
+
+let rec find0 alist =  
+        find0aux alist 0 
+		and
+		    find0aux alist count =
+          match alist with
+          | []  -> -1
+          | hd::tl -> if (hd = 0 ) 
+                      then  count
+                      else find0aux tl (count+1)
+ 
+ let rec remove0aux  alist acc =
+ 		 match alist with 
+ 		 | []  -> List.rev acc
+ 		 | hd::tl -> if (hd = 0)
+ 		             then remove0aux tl acc
+ 		             else remove0aux tl ((hd - 1)::acc)
+ 
+ let remove0 alist = remove0aux alist []
+ 
+
+        
+let rec findNaux alist ll offset  increment =
+ (*  let () = Printf.printf "findNaux:0 ll %s offset %s   increment %s \n" (iToA ll) (iToA offset) (iToA increment)  in  *)
+        match alist with
+        | [] -> ll
+        | [_] -> ll
+        | [0;1] -> if( isEven(ll) ) then ll else  (addInt ll 1)
+        | [1;0] -> if( isEven(ll) ) then (addInt ll 1) else ll 
+        |  _    -> 
+                let pos = fromInt (find0 alist) in
+                let _alen = List.length alist in
+        				let alen = fromInt _alen in
+        				let fac_alen_minusOne = facult (_alen - 1)  in   
+(* )			  let () = Printf.printf "findNaux:1 pos %d  alen %d fac_alen_minusOne %d \n" pos alen fac_alen_minusOne  in  *)
+        				if( isLt ll (add (mul pos fac_alen_minusOne)  offset )) 
+           					then if (isZero increment ) 
+           								then findNaux alist  ll   ll   (mul fac_alen_minusOne  alen)
+           								else findNaux alist  ll  ( add increment offset )   increment
+					 					else findNaux (remove0 alist)  (add (mul pos fac_alen_minusOne) offset) (fromInt 0 ) (fromInt 0)
+
+let rec findN alist = findNaux alist  (fromInt 0 )  (fromInt 0 )   (fromInt 0 )
+
+
+
  
 end 
